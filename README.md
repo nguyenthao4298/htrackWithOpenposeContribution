@@ -1,9 +1,11 @@
 # Contribute to htrack
 - Using Microsoft Kinect V2 sensor
 - Wristband is not required (using Openpose)
+- Our demo video: https://youtu.be/PP3YQRjSuow
 
-
-###
+### 
+README version of the authors is below
+==========================================================================================
 # Robust Articulated-ICP for Real-Time Hand Tracking
 
 - **YouTube Video**: https://youtu.be/rm3YnClSmIQ
