@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../libcudax.a  CMakeFiles/cudax.dir/cudax_generated_kernel.cu.o CMakeFiles/cudax.dir/cudax_generated_outer_product.cu.o
+/usr/bin/ranlib ../libcudax.a
