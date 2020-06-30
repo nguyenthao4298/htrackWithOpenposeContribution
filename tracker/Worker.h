@@ -10,7 +10,7 @@
 #include "Energy/PoseSpace.h"
 #include "Energy/Fitting.h"
 #include "Energy/Fitting/TrackingMonitor.h"
-#include "Energy/Wristband.h"
+#include "Energy/Wrist.h"
 #include "Energy/Temporal.h"
 
 /// @note do not construct more than one instance of this class
