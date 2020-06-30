@@ -8,11 +8,6 @@
 #include "tracker/DataStructure/SkeletonSerializer.h"
 #include "tracker/OpenGL/DebugRenderer/DebugRenderer.h"
 
-template <class Derived>
-void draw_dot(cv::Mat &bw, const Vector2 &c, Derived color) { cv::circle(bw, cv::Point(c[0], bw.rows - c[1] - 1), 1, color, -1 /*filled*/, 8 /*8 connected lineType*/); }
-template <class Derived>
-void draw_circle(cv::Mat &bw, const Vector2 &c, Derived color) { cv::circle(bw, cv::Point(c[0], bw.rows - c[1] - 1), 5 /*disk_size*/, color, -1 /*filled*/, 8 /*8 connected lineType*/); }
-inline void draw_line(cv::Mat &bw, const Vector2 &p1, const Vector2 &p2) { cv::line(bw, cv::Point(p1[0], bw.rows - p1[1] - 1), cv::Point(p2[0], bw.rows - p2[1] - 1), 0, 3); }
 
 #ifdef DEBUG_VIZ
 #include "opencv2/core/core.hpp"
@@ -38,7 +33,6 @@ void energy::Wristband::track(LinearSystem &system)
         return;
 
     /// @brief ugly hack to flip the direction of the PCA axis
-    /// Ugly, but sufficient to get the teaser video recording!
     if (classifier_temporal)
     {
         static Vector3 prev_wband_dir(0, 1, 0);
@@ -79,17 +73,7 @@ void energy::Wristband::track(LinearSystem &system)
     system.lhs += weight * J.transpose() * J;
     system.rhs += weight * J.transpose() * rhs;
 
-    // std::ofstream("lhs.txt") << transp(J) * J;
-    // std::ofstream("rhs.txt") << transp(J) * rhs;
 
-    ///--- Visualize
-    if (classifier_show_axis)
-    {
-        DebugRenderer::instance().clear();
-        // Debug_renderer::instance().add_points(pts, Vector3(1,0,0));
-        std::vector<std::pair<Vector3, Vector3>> segs;
-        segs.push_back(std::make_pair(handfinder->wristband_center(), handfinder->wristband_center() + handfinder->wristband_direction() * 100));
-        DebugRenderer::instance().add_segments(segs, Vector3(1, 0, 0));
-    }
+
 }
 
