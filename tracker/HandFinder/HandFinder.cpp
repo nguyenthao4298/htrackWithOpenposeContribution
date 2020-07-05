@@ -21,33 +21,33 @@ HandFinder::HandFinder(Camera *camera, TrivialDetector *trivial_detector) : came
     CHECK_NOTNULL(trivial_detector);
 
     tw_settings->tw_add(settings->show_hand, "show_hand", "group=HandFinder");
-    tw_settings->tw_add(settings->show_wband, "show_wband", "group=HandFinder");
-    tw_settings->tw_add(settings->wband_size, "wband_size", "group=HandFinder");
+    // tw_settings->tw_add(settings->show_wband, "show_wband", "group=HandFinder");
+    // tw_settings->tw_add(settings->wband_size, "wband_size", "group=HandFinder");
     tw_settings->tw_add(settings->depth_range, "depth_range", "group=HandFinder");
 
-#ifdef TODO_TWEAK_WRISTBAND_COLOR
-    // TwDefine(" Settings/classifier_hsv_min colormode=hls ");
-    TwAddVarRW(tw_settings->anttweakbar(), "rgb_min", TW_TYPE_COLOR3F, &_settings.hsv_min.data, "group=HandFinder");
-    TwAddVarRW(tw_settings->anttweakbar(), "rgb_max", TW_TYPE_COLOR3F, &_settings.hsv_max.data, "group=HandFinder");
-#endif
+    // #ifdef TODO_TWEAK_WRISTBAND_COLOR
+    //     // TwDefine(" Settings/classifier_hsv_min colormode=hls ");
+    //     TwAddVarRW(tw_settings->anttweakbar(), "rgb_min", TW_TYPE_COLOR3F, &_settings.hsv_min.data, "group=HandFinder");
+    //     TwAddVarRW(tw_settings->anttweakbar(), "rgb_max", TW_TYPE_COLOR3F, &_settings.hsv_max.data, "group=HandFinder");
+    // #endif
 
-    std::string path = local_file_path("wristband.txt", true /*exit*/);
-    if (!path.empty())
-    {
-        std::cout << "Reading Wristband Colors from: " << path << std::endl;
-        ifstream myfile(path);
-        std::string dump;
-        myfile >> dump; ///< "hsv_min:"
-        myfile >> settings->hsv_min[0];
-        myfile >> settings->hsv_min[1];
-        myfile >> settings->hsv_min[2];
-        myfile >> dump; ///< "hsv_max:"
-        myfile >> settings->hsv_max[0];
-        myfile >> settings->hsv_max[1];
-        myfile >> settings->hsv_max[2];
-        std::cout << "  hsv_min: " << settings->hsv_min << std::endl;
-        std::cout << "  hsv_max: " << settings->hsv_max << std::endl;
-    }
+    //     std::string path = local_file_path("wristband.txt", true /*exit*/);
+    //     if (!path.empty())
+    //     {
+    //         std::cout << "Reading Wristband Colors from: " << path << std::endl;
+    //         ifstream myfile(path);
+    //         std::string dump;
+    //         myfile >> dump; ///< "hsv_min:"
+    //         myfile >> settings->hsv_min[0];
+    //         myfile >> settings->hsv_min[1];
+    //         myfile >> settings->hsv_min[2];
+    //         myfile >> dump; ///< "hsv_max:"
+    //         myfile >> settings->hsv_max[0];
+    //         myfile >> settings->hsv_max[1];
+    //         myfile >> settings->hsv_max[2];
+    //         std::cout << "  hsv_min: " << settings->hsv_min << std::endl;
+    //         std::cout << "  hsv_max: " << settings->hsv_max << std::endl;
+    //     }
 }
 
 void HandFinder::binary_classification(DataFrame &frame)
@@ -58,14 +58,14 @@ void HandFinder::binary_classification(DataFrame &frame)
     if (previous_frame_id == frame.id)
         return;
     previous_frame_id = frame.id;
-    _wristband_found = false;
+    _wrist_found = false;
 
     // LOG(INFO) << "Worker::binary_classification";
     // TICTOC_SCOPE(timer, "Worker::binary_classification");
 
     cv::Mat &color = frame.color;
     cv::Mat &depth = frame.depth;
-
+//cv::imshow("color_image", color);
 #if 0
     ///--- SPECIAL CASES TO TEST DATASETS
     {
@@ -111,17 +111,17 @@ void HandFinder::binary_classification(DataFrame &frame)
         depth_farplane = 750;
 #endif
 
-#if 0
-    ///--- Ovverride wristband color for legacy sequences
-    if(datastream->is_legacy_maschroe()){
-        LOG(INFO) << "LEGACY";
-        hsv_min = cv::Scalar(108, 146, 34);
-        hsv_max = cv::Scalar(121, 255, 255);
-        wband_size=30;
-        depth_range=150;
-        depth_farplane=900;
-    }
-#endif
+    // #if 0
+    //     ///--- Ovverride wristband color for legacy sequences
+    //     if(datastream->is_legacy_maschroe()){
+    //         LOG(INFO) << "LEGACY";
+    //         hsv_min = cv::Scalar(108, 146, 34);
+    //         hsv_max = cv::Scalar(121, 255, 255);
+    //         wband_size=30;
+    //         depth_range=150;
+    //         depth_farplane=900;
+    //     }
+    // #endif
 
     Scalar crop_radius = 150;
 #if 0
@@ -190,7 +190,7 @@ void HandFinder::binary_classification(DataFrame &frame)
                 trivial_detector->exec(frame, sensor_silhouette);
             }
             _has_useful_data = true;
-            _wristband_found = true;
+            _wrist_found = true;
         }
     }
 
@@ -216,11 +216,11 @@ void HandFinder::binary_classification(DataFrame &frame)
         // }
         std::pair<float, int> avg;
         float depth_wrist1 = depth.at<ushort>(location(1), location(0));
-            if (camera->is_valid(depth_wrist1))
-            {
-                avg.first += depth_wrist1;
-                avg.second++;
-            }
+        if (camera->is_valid(depth_wrist1))
+        {
+            avg.first += depth_wrist1;
+            avg.second++;
+        }
         ushort depth_wrist = (avg.second == 0) ? camera->zNear() : avg.first / avg.second;
         // ushort depth_wrist = (avg.second==0) ? camera->zNear() : avg.first / avg.second;
         // cout << "depth_wrist" << depth_wrist << endl;
@@ -233,8 +233,8 @@ void HandFinder::binary_classification(DataFrame &frame)
 
     //cv::imshow("sensor_silhouette (before)", sensor_silhouette);
 
-    _wband_center = Vector3(0, 0, 0);
-    _wband_dir = Vector3(0, 0, -1);
+    _wrist_center = Vector3(0, 0, 0);
+    _wrist_dir = Vector3(0, 0, -1);
     // TIMED_BLOCK(timer,"Worker_classify::(PCA)")
     {
         ///--- Compute MEAN
@@ -248,7 +248,7 @@ void HandFinder::binary_classification(DataFrame &frame)
         // }
         // _wband_center /= counter;
         // std::vector<Vector3> pts; pts.push_back(_wband_center);
-        _wband_center += frame.point_at_pixel(location(0), location(1), camera);
+        _wrist_center += frame.point_at_pixel(location(0), location(1), camera);
         //std::cout << " center " << _wband_center << " ok " << std::endl;
         ///--- Compute Covariance
         static std::vector<Vector3> points_pca;
@@ -261,7 +261,7 @@ void HandFinder::binary_classification(DataFrame &frame)
                 if (sensor_silhouette.at<uchar>(row, col) != 255)
                     continue;
                 Vector3 p_pixel = frame.point_at_pixel(col, row, camera);
-                if ((p_pixel - _wband_center).norm() < 100)
+                if ((p_pixel - _wrist_center).norm() < 50)
                 {
                     // sensor_silhouette.at<uchar>(row,col) = 255;
                     points_pca.push_back(p_pixel);
@@ -278,14 +278,18 @@ void HandFinder::binary_classification(DataFrame &frame)
         Eigen::Map<Matrix_3xN> points_mat(points_pca[0].data(), 3, points_pca.size());
         // Vector3 mean = points_mat.rowwise().mean();
         for (int i : {0, 1, 2})
-            points_mat.row(i).array() -= _wband_center(i);
+            points_mat.row(i).array() -= _wrist_center(i);
         Matrix3 cov = points_mat * points_mat.adjoint();
         Eigen::SelfAdjointEigenSolver<Matrix3> eig(cov);
-        _wband_dir = eig.eigenvectors().col(2);
+        _wrist_dir = eig.eigenvectors().col(2);
 
         ///--- Allow wrist to point downward
-        if (_wband_dir.y() < 0)
-            _wband_dir = -_wband_dir;
+        // if (_wband_dir.y() < 0)
+        //     _wband_dir = -_wband_dir;
+        if (_wrist_dir.y() < 0 && _wrist_dir.z() > 0)
+        {
+            _wrist_dir = -_wrist_dir;
+        }
     }
 
     // cv::imshow("sensor_silhouette", sensor_silhouette);
@@ -293,7 +297,7 @@ void HandFinder::binary_classification(DataFrame &frame)
     // TIMED_BLOCK(timer,"Worker_classify::(in sphere)")
     {
         Scalar crop_radius_sq = crop_radius * crop_radius;
-        Vector3 crop_center = _wband_center + _wband_dir * (crop_radius + 5/*mm*/);
+        Vector3 crop_center = _wrist_center + _wrist_dir * (crop_radius - 25 /*mm*/);
         for (int row = 0; row < sensor_silhouette.rows; ++row)
         {
             for (int col = 0; col < sensor_silhouette.cols; ++col)
@@ -302,7 +306,7 @@ void HandFinder::binary_classification(DataFrame &frame)
                     continue;
 
                 Vector3 p_pixel = frame.point_at_pixel(col, row, camera);
-                if ((p_pixel - crop_center).squaredNorm() < crop_radius_sq)
+                if ((p_pixel - crop_center).squaredNorm() < 14000) //14000
                     sensor_silhouette.at<uchar>(row, col) = 255;
                 else
                     sensor_silhouette.at<uchar>(row, col) = 0;
@@ -310,12 +314,12 @@ void HandFinder::binary_classification(DataFrame &frame)
         }
     }
 
-    if (_settings.show_hand)
-    {
-        cv::imshow("show_hand", sensor_silhouette);
-    }
-    else
-    {
-        cv::destroyWindow("show_hand");
-    }
+    // if (_settings.show_hand)
+    // {
+    //cv::imshow("show_hand", sensor_silhouette);
+    // }
+    // else
+    // {
+    //     cv::destroyWindow("show_hand");
+    // }
 }

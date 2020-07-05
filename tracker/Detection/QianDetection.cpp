@@ -412,7 +412,7 @@ void QianDetection::optimize_current_permutation(size_t permutation, size_t dire
 		}
         worker->E_limits.track(system_detection, theta_std);
         my_damping_track(system_detection);
-		worker->E_wristband.track(system_detection);
+		worker->E_wrist.track(system_detection);
         // worker->E_pose.track(system_detection, theta_std);
 
 		VectorN delta_theta = system_detection.lhs.colPivHouseholderQr().solve(system_detection.rhs);
@@ -446,7 +446,7 @@ void QianDetection::rigid_aligment(const Eigen::Matrix<Scalar, num_thetas, 1> & 
     worker->skeleton->update();
 
 	Scalar palm_length = worker->cylinders->getSegmentByID(worker->skeleton->getID("Hand")).length;
-	Vector3 palm_root_target = detection->get_point_target(0) - 0.5 * palm_length * worker->handfinder->wristband_direction();
+	Vector3 palm_root_target = detection->get_point_target(0) - 0.5 * palm_length * worker->handfinder->wrist_direction();
 	Vector3 palm_root_source = worker->skeleton->getJoint(worker->skeleton->getID("Hand"))->getGlobalTranslation();
 	Vs.col(detection->get_num_point_targets()) = palm_root_source.transpose();
 	Vt.col(detection->get_num_point_targets()) = palm_root_target.transpose();

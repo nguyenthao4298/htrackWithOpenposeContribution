@@ -6,7 +6,7 @@
 
 namespace energy{
 
-class Wristband : public Energy{
+class Wrist : public Energy{
     Camera* camera;
     SkeletonSerializer* skeleton;
     HandFinder* handfinder;

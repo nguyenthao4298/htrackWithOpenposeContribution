@@ -51,6 +51,7 @@ Camera::Camera(CAMERAMODE mode, int fps):_mode(mode), _fps(fps){
             _focal_length_y = 650;
             _zFar = 1000;
            _zNear = 300;
+		// x2 for higher resolution
             break;
         case Chen:
             _width = 320;

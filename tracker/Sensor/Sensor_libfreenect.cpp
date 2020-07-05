@@ -42,9 +42,8 @@ void SensorLibFreenect::stop() {}
 #include <openpose/flags.hpp>
 #include <openpose/headers.hpp>
 using namespace std;
-
-int D_width  = 960;
-int D_height = 540;
+int D_width = 512;
+int D_height = 424;
 //! [context]
 libfreenect2::Freenect2 freenect2;
 libfreenect2::Freenect2Device *dev = 0;
@@ -194,10 +193,9 @@ int SensorLibFreenect::initialize()
 }
 SensorLibFreenect::~SensorLibFreenect()
 {
-  std::cout << "~SensorLibFreenect()" << std::endl;
   opWrapper.stop();
+  std::cout << "~SensorLibFreenect()" << std::endl;
   if (!initialized)
-  std::cout << "dddd" <<std::endl;
     return;
   //TODO: stop sensor
 }
@@ -239,7 +237,7 @@ bool SensorLibFreenect::fetch_streams(DataFrame &frame)
 
   libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4), depth2rgb(1920, 1080 + 2, 4); // check here (https://github.com/OpenKinect/libfreenect2/issues/337) and here (https://github.com/OpenKinect/libfreenect2/issues/464) why depth2rgb image should be bigger
 
-
+  
   registration->apply(rgb, depth, &undistorted, &registered, true, &depth2rgb);
   // cv::Mat depthmat =cv::Mat(depth->height, depth->width, CV_32FC1, depth->data);
   cv::Mat rgbmat = cv::Mat(rgb->height, rgb->width, CV_8UC4, rgb->data);
@@ -249,7 +247,7 @@ bool SensorLibFreenect::fetch_streams(DataFrame &frame)
   cv::resize(bigdepth, bigdepth, cv::Size(960, 540));
   rgbmat.convertTo(rgb1, CV_8UC3);
   bigdepth.convertTo(depth1, CV_16UC1);
-  
+
   //bigDepthMat.convertTo(bigDepthMat,CV_8UC1,255.0);
   cv::Mat depth_buffer = depth1;
   cv::Mat color_buffer = rgb1;
@@ -299,16 +297,52 @@ bool SensorLibFreenect::fetch_streams(DataFrame &frame)
     {
 
       const auto baseIndexwrist = datumProcessed->at(0)->poseKeypoints.getSize(2) * (0 * numberBodyParts + 4);
+      //const auto baseIndexelbow = datumProcessed->at(0)->poseKeypoints.getSize(2) * (0 * numberBodyParts + 3);
       const auto xwrist = datumProcessed->at(0)->poseKeypoints[baseIndexwrist];
       const auto ywrist = datumProcessed->at(0)->poseKeypoints[baseIndexwrist + 1];
+      //const auto xelbow = datumProcessed->at(0)->poseKeypoints[baseIndexelbow];
+      //const auto yelbow = datumProcessed->at(0)->poseKeypoints[baseIndexelbow + 1];
+      // Camera *const newCam = (Camera *const)camera;
+      // frame.wrist = frame.point_at_pixel( ywrist,xwrist, newCam);
+      //std::cout << " vi tri x " << xwrist << " va " << ywrist <<std::endl;
+      // if (xwrist == 0 && ywrist == 0)
+      // {
+      //   std::cout << "khong nhan duoc co tay dau"<<std::endl;
+      // }
       cv::Mat rgbd2;
       cv::Mat(rgb->height, rgb->width, CV_8UC4, rgb->data).copyTo(rgbd2);
       cv::cvtColor(rgbd2, rgbd2, CV_BGRA2BGR);
       cv::resize(rgbd2, rgbd2, cv::Size(960, 540));
       cv::Point startPt(xwrist, ywrist);
       frame.wrist_location = Vector2(xwrist, ywrist);
-      // cv::imshow("color image", rgbd2);
-
+      // cv::Mat fake1 = rgbd;
+      //cv::circle(rgbd2, startPt, 10, cv::Scalar(123, 255, 222), CV_FILLED, 4);
+      //cv::inRange(rgbd2, cv::Scalar(123, 255, 222), cv::Scalar(123, 255, 222), fake1);
+      cv::imshow("", rgbd2);
+      // std::cout << " dam bao 1" << frame.wrist << " oke " << std::endl;
+      // cv::Point startPt(xwrist, ywrist);
+      // //cv::line(rgbmat, cv::Point(xelbow, yelbow), cv::Point(xwrist, ywrist), cv::Scalar(255, 255, 0), 4);
+      // float vX = xwrist - xelbow;
+      // float vY = ywrist - yelbow;
+      // if ((vX != 0) || (vY != 0))
+      // {
+      //   float mag = sqrt(vX * vX + vY * vY);
+      //   vX = vX / mag;
+      //   vY = vY / mag;
+      //   float temp = vX;
+      //   vX = 0 - vY;
+      //   vY = temp;
+      //   float cX = xwrist + vX * 30;
+      //   float cY = ywrist + vY * 30;
+      //   float dX = xwrist - vX * 30;
+      //   float dY = ywrist - vY * 30;
+      //   //cv::line(rgbmat, cv::Point(cX, cY), cv::Point(dX, dY), cv::Scalar(255, 0, 0), 130);
+      //   // cv::line(rgbd, cv::Point(cX, cY), cv::Point(dX, dY), cv::Scalar(255, 255, 255), 20);
+      //   cv::circle(rgbd, startPt, 10, cv::Scalar(0, 255, 0), 4);
+      //   cv::imshow("hello", rgbd);
+      // }
+      //cv::circle(rgbmat, startPt, 10, cv::Scalar(0, 255, 0), 4);
+      //cv::imshow("hello", masked);
     }
     else
     {

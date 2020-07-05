@@ -292,11 +292,11 @@ void OpenGL_viewer::paintGL() {
     ///--- draw kinect point cloud in shader
     if(draw_cloud->isChecked())
     {
-        if(wristband_colormap->isChecked() && worker->handfinder->wristband_found())
+        if(wristband_colormap->isChecked() && worker->handfinder->wrist_found())
         {
             kinect_renderer->enable_colormap(true);
-            kinect_renderer->set_zNear(worker->handfinder->wristband_center()[2] - 150);
-            kinect_renderer->set_zFar(worker->handfinder->wristband_center()[2] + 150);
+            kinect_renderer->set_zNear(worker->handfinder->wrist_center()[2] - 150);
+            kinect_renderer->set_zFar(worker->handfinder->wrist_center()[2] + 150);
         }
 
         kinect_renderer->set_uniform("view_projection",view_projection);

@@ -73,11 +73,11 @@ public:
         Eigen::Matrix4f view_projection = _camera->view_projection_matrix();
         Eigen::Matrix4f view = _camera->view_matrix();
 
-        if(worker->handfinder->wristband_found())
+        if(worker->handfinder->wrist_found())
         {
             kinect_renderer.enable_colormap(true);
-            kinect_renderer.set_zNear(worker->handfinder->wristband_center()[2] - 150);
-            kinect_renderer.set_zFar(worker->handfinder->wristband_center()[2] + 150);
+            kinect_renderer.set_zNear(worker->handfinder->wrist_center()[2] - 150);
+            kinect_renderer.set_zFar(worker->handfinder->wrist_center()[2] + 150);
         }
         kinect_renderer.set_uniform("view_projection",view_projection);
         kinect_renderer.render();

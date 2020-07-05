@@ -51,5 +51,3 @@ add_subdirectory(apps/colorpick)
 #add_subdirectory(apps/synthgen) #<<< NOT READY
 
 
-
-

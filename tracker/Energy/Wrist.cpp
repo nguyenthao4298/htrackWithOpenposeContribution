@@ -8,14 +8,13 @@
 #include "tracker/DataStructure/SkeletonSerializer.h"
 #include "tracker/OpenGL/DebugRenderer/DebugRenderer.h"
 
-
 #ifdef DEBUG_VIZ
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 cv::Mat image; ///< debug
 #endif
 
-void energy::Wristband::init(Camera *camera, SkeletonSerializer *skeleton, HandFinder *handfinder)
+void energy::Wrist::init(Camera *camera, SkeletonSerializer *skeleton, HandFinder *handfinder)
 {
     this->camera = camera;
     this->skeleton = skeleton;
@@ -24,40 +23,33 @@ void energy::Wristband::init(Camera *camera, SkeletonSerializer *skeleton, HandF
     /// TODO: AntTweakBar elements for wrist energy
 }
 
-void energy::Wristband::track(LinearSystem &system)
+void energy::Wrist::track(LinearSystem &system)
 {
 
-    if (!handfinder->wristband_found())
+    if (!handfinder->wrist_found())
         return;
     if (!classifier_enable)
         return;
 
     /// @brief ugly hack to flip the direction of the PCA axis
+    /// Ugly, but sufficient to get the teaser video recording!
     if (classifier_temporal)
     {
-        static Vector3 prev_wband_dir(0, 1, 0);
-        if (handfinder->wristband_direction().dot(prev_wband_dir) < 0)
-            handfinder->wristband_direction_flip();
-        prev_wband_dir = handfinder->wristband_direction();
+        static Vector3 prev_wrist_dir(0, 1, 0);
+        if (handfinder->wrist_direction().dot(prev_wrist_dir) < 0)
+            handfinder->wrist_direction_flip();
+        prev_wrist_dir = handfinder->wrist_direction();
     }
 
     int hand_id = skeleton->getID("Hand");
     Vector3 hand_root = skeleton->getJoint("Hand")->getGlobalTranslation();
-    Vector3 wband_offpoint = handfinder->wristband_center() + handfinder->wristband_direction() * 100;
+    Vector3 wrist_offpoint = handfinder->wrist_center() + handfinder->wrist_direction() * 100;
 
     Vector2 root_scr = camera->world_to_image(hand_root);
-    Vector2 wband_center_scr = camera->world_to_image(handfinder->wristband_center());
-    Vector2 wband_offpnt_scr = camera->world_to_image(wband_offpoint);
+    Vector2 wrist_center_scr = camera->world_to_image(handfinder->wrist_center());
+    Vector2 wrist_offpnt_scr = camera->world_to_image(wrist_offpoint);
 
-#ifdef DEBUG_VIZ
-    image = current_frame.color.clone();
-    draw_circle(image, root_scr, cv::Scalar(255, 0, 0));
-    draw_circle(image, wband_center_scr, cv::Scalar(0, 255, 0));
-    draw_line(image, wband_center_scr, wband_offpnt_scr);
-    cv::imshow("image", image);
-#endif
-
-    Vector2 n_wrist2 = (wband_center_scr - wband_offpnt_scr).normalized();
+    Vector2 n_wrist2 = (wrist_center_scr - wrist_offpnt_scr).normalized();
     n_wrist2 = Vector2(n_wrist2[1], -n_wrist2[0]);
 
     ///--- LHS
@@ -66,14 +58,14 @@ void energy::Wristband::track(LinearSystem &system)
     Matrix_1xN J = n_wrist2.transpose() * J_pr * J_sk;
 
     ///--- RHS
-    Scalar rhs = n_wrist2.transpose() * (wband_center_scr - root_scr);
+    Scalar rhs = n_wrist2.transpose() * (wrist_center_scr - root_scr);
 
     ///--- Add to solver
     Scalar weight = classifier_weight;
     system.lhs += weight * J.transpose() * J;
     system.rhs += weight * J.transpose() * rhs;
 
-
-
+    // std::ofstream("lhs.txt") << transp(J) * J;
+    // std::ofstream("rhs.txt") << transp(J) * rh
 }
 

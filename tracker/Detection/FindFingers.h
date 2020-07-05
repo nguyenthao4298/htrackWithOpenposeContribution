@@ -56,8 +56,8 @@ private:
 	size_t max_row;
 	int thumb_index;
 	Vector2 thumb_tip;
-	Vector2 wristband_center;
-	Vector2 wristband_direction;
+	Vector2 wrist_center;
+	Vector2 wrist_direction;
 	int hand_side;
 
 private:

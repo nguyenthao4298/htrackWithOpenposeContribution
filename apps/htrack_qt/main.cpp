@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     SensorLibRealSense sensor(&camera);
 #endif
 #if defined(LIBFREENECT)
-    Camera camera(Kinect, 30 /*FPS*/);
+    Camera camera(Kinect, 60 /*FPS*/);
     SensorLibFreenect sensor(&camera);
 #endif
     DataStream datastream(&camera);

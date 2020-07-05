@@ -969,16 +969,16 @@ void FindFingers::find_thumb(const Matrix_MxN &depth) {
 
 
     // Find hand side
-    wristband_center = camera->world_to_image(worker->handfinder->wristband_center());
-    Vector2 wristband_shift = camera->world_to_image(worker->handfinder->wristband_center() + worker->handfinder->wristband_direction());
-    wristband_center = Vector2(depth.rows() - wristband_center(1), wristband_center(0));
-    wristband_shift = Vector2(depth.rows() - wristband_shift(1), wristband_shift(0));
-    wristband_direction = wristband_shift - wristband_center;
-    wristband_direction /= wristband_direction.norm();
+    wrist_center = camera->world_to_image(worker->handfinder->wrist_center());
+    Vector2 wrist_shift = camera->world_to_image(worker->handfinder->wrist_center() + worker->handfinder->wrist_direction());
+    wrist_center = Vector2(depth.rows() - wrist_center(1), wrist_center(0));
+    wrist_shift = Vector2(depth.rows() - wrist_shift(1), wrist_shift(0));
+    wrist_direction = wrist_shift - wrist_center;
+    wrist_direction /= wrist_direction.norm();
 
     thumb_tip = tips[thumb_index];
-    Vector2 x = thumb_tip - wristband_center;
-    Vector2 y = wristband_direction;
+    Vector2 x = thumb_tip - wrist_center;
+    Vector2 y = wrist_direction;
 
     Scalar a = x(0) * y(1) - x(1) * y(0);
 

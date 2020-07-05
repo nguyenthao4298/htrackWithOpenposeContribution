@@ -50,7 +50,8 @@ public:
     energy::JointLimits E_limits;
     energy::Collision E_collision;
     energy::PoseSpace E_pose;
-    energy::Wristband E_wristband;
+    //energy::Wristband E_wristband;
+    energy::Wrist E_wrist;
 
     HandFinder* handfinder = NULL;
     TrivialDetector* trivial_detector = NULL;

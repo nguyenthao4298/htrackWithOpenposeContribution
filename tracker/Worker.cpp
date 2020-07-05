@@ -40,7 +40,7 @@ void Worker::init_graphic_resources(){
     trivial_detector = new TrivialDetector(camera, &offscreenrend, skeleton);
     handfinder = new HandFinder(camera, trivial_detector);
     E_fitting.init(this);
-    E_wristband.init(camera,skeleton,handfinder);
+    E_wrist.init(camera,skeleton,handfinder);
     E_limits.init(skeleton);
     E_collision.init(this);
     E_pose.init();
@@ -124,7 +124,7 @@ TrackingError Worker::track(DataFrame& frame, bool rigid_only, bool eval_error){
     E_fitting.track(frame, system, rigid_only, eval_error, push_error, pull_error); ///<!!! MUST BE FIRST CALL
     E_collision.track(system);
     E_temporal.track(system, frame);
-    E_wristband.track(system);
+    E_wrist.track(system);
     E_limits.track(system, _thetas);
     E_damping.track(system);
 

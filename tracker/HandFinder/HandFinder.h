@@ -25,19 +25,19 @@ public:
 
 private:
     bool _has_useful_data = false;
-    bool _wristband_found;
-    Vector3 _wband_center;
-    Vector3 _wband_dir;
+    bool _wrist_found;
+    Vector3 _wrist_center;
+    Vector3 _wrist_dir;
 public:
     cv::Mat sensor_silhouette; ///< created by binary_classifier
-    cv::Mat sensor_wristband; ///< created by binary_classifier
+    cv::Mat sensor_wristband; ///< created by binary_classifier --no more using with the contribution of Openpose
 
 public:
     bool has_useful_data(){ return _has_useful_data; }
-    bool wristband_found(){ return _wristband_found; }
-    Vector3 wristband_center(){ return _wband_center; }
-    Vector3 wristband_direction(){ return _wband_dir; }
-    void wristband_direction_flip(){ _wband_dir=-_wband_dir; }
+    bool wrist_found(){ return _wrist_found; }
+    Vector3 wrist_center(){ return _wrist_center; }
+    Vector3 wrist_direction(){ return _wrist_dir; }
+    void wrist_direction_flip(){ _wrist_dir=-_wrist_dir; }
 public:
     void binary_classification(DataFrame &frame);
 };
